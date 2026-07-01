@@ -4,6 +4,7 @@ import { FaUser, FaClock } from 'react-icons/fa';
 import { voteQuestion } from '../../reducers/questionSlice';
 import { formatDate } from '../../utils/timeFormat';
 import VoteButtons from '../Shared/VoteButtons';
+import BookmarkButton from '../Shared/BookmarkButton';
 import './QuestionContent.css';
 
 const QuestionContent = ({ question }) => {
@@ -15,9 +16,12 @@ const QuestionContent = ({ question }) => {
       {/* Question Header */}
       <Card className="mb-4 qcontent-header-card">
         <Card.Body className="p-3 p-sm-4">
-          <Card.Title as="h2" className="mb-3 qcontent-title">
-            {question.title}
-          </Card.Title>
+          <div className="d-flex justify-content-between align-items-start gap-2">
+            <Card.Title as="h2" className="mb-3 qcontent-title flex-grow-1">
+              {question.title}
+            </Card.Title>
+            <BookmarkButton question={question} />
+          </div>
           <div className="d-flex flex-wrap gap-3 gap-sm-4 qcontent-meta">
             <span className="d-flex align-items-center gap-2">
               <FaClock />

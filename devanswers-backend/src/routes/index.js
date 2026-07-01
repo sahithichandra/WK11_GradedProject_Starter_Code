@@ -3,6 +3,7 @@ import authRouter from './auth.js';
 import questionsRouter from './questions.js';
 import answersRouter from './answers.js';
 import tagsRouter from './tags.js';
+import bookmarksRouter from './bookmarks.js';
 
 const router = express.Router();
 
@@ -17,5 +18,8 @@ router.use('/answers', answersRouter);
 
 // Routes for Tags
 router.use('/tags', tagsRouter);
+
+// Routes for Bookmarks
+router.use('/bookmarks', bookmarksRouter);
 
 export default router;

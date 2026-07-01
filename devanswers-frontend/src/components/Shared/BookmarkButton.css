@@ -1,0 +1,17 @@
+.bookmark-btn {
+  line-height: 1;
+  color: var(--bs-secondary, #6c757d);
+}
+
+.bookmark-btn:hover {
+  color: var(--bs-primary, #0d6efd);
+}
+
+.bookmark-icon {
+  font-size: 1.15rem;
+  vertical-align: middle;
+}
+
+.bookmark-icon-saved {
+  color: var(--bs-primary, #0d6efd);
+}

@@ -165,6 +165,21 @@ export const handlers = [
     return HttpResponse.json({ data: questions });
   }),
 
+  // ── Bookmark endpoints ────────────────────────────────────────────────────
+  http.get(`${BASE_URL}/bookmarks`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: [mockQuestions[0]],
+    });
+  }),
+
+  http.post(`${BASE_URL}/bookmarks/:questionId`, ({ params }) => {
+    return HttpResponse.json({
+      success: true,
+      data: { questionId: params.questionId, bookmarked: true },
+    });
+  }),
+
   // ── User stats endpoint ───────────────────────────────────────────────────
   http.get(`${BASE_URL}/auth/stats/:userId`, ({ params }) => {
     return HttpResponse.json({

@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { voteQuestion } from '../../reducers/questionSlice';
 import { formatDate } from '../../utils/timeFormat';
 import VoteButtons from '../Shared/VoteButtons';
+import BookmarkButton from '../Shared/BookmarkButton';
 import './QuestionCard.css';
 
 const QuestionCard = ({ question }) => {
@@ -50,11 +51,14 @@ const QuestionCard = ({ question }) => {
 
           {/* Content Column */}
           <div className="flex-grow-1">
-            <Card.Title className="mb-2">
-              <Link to={`/question/${question._id}`} className="qcard-title-link">
-                {question.title}
-              </Link>
-            </Card.Title>
+            <div className="d-flex justify-content-between align-items-start gap-2">
+              <Card.Title className="mb-2 flex-grow-1">
+                <Link to={`/question/${question._id}`} className="qcard-title-link">
+                  {question.title}
+                </Link>
+              </Card.Title>
+              <BookmarkButton question={question} />
+            </div>
 
             <Card.Text className="mb-2 qcard-desc">
               {question.description}

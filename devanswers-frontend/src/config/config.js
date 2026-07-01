@@ -42,6 +42,12 @@ export const USER_API = {
   STATS: (userId) => `/auth/stats/${userId}`,
 };
 
+// Bookmark API Endpoints
+export const BOOKMARK_API = {
+  LIST: "/bookmarks",
+  TOGGLE: (questionId) => `/bookmarks/${questionId}`,
+};
+
 // AI API Endpoints
 export const AI_API = {
   IMPROVE_QUESTION: '/questions/improve',

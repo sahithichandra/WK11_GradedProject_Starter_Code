@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { FaUser, FaEnvelope, FaSave, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { USER_API } from '../../config/config.js';
+import { fetchBookmarks } from '../../reducers/bookmarkSlice.js';
+import QuestionList from '../../components/Question/QuestionList.jsx';
 import './Profile.css';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.user);
+  const savedQuestions = useSelector((state) => state.bookmark?.items) || [];
   const isAuthenticated = !!userInfo;
   
   const [isEditing, setIsEditing] = useState(false);
@@ -37,8 +41,11 @@ const Profile = () => {
       navigate('/login');
     } else if (userInfo?.userId) {
       fetchUserStats();
+      dispatch(fetchBookmarks());
     }
-  }, [isAuthenticated, navigate, userInfo]);
+    // Depend on the stable userId primitive, not the userInfo object, so the
+    // effect does not re-fire on every unrelated state change.
+  }, [isAuthenticated, navigate, userInfo?.userId, dispatch]);
 
   const fetchUserStats = async () => {
     try {
@@ -306,6 +313,20 @@ const Profile = () => {
               )}
             </Card.Body>
           </Card>
+
+          {/* Saved Questions Section */}
+          {!isEditing && (
+            <Card className="mt-4 profile-body-card">
+              <Card.Body className="p-4">
+                <h5 className="mb-3 profile-stats-title">Saved Questions</h5>
+                {savedQuestions.length > 0 ? (
+                  <QuestionList questions={savedQuestions} />
+                ) : (
+                  <p className="text-muted mb-0">No saved questions yet.</p>
+                )}
+              </Card.Body>
+            </Card>
+          )}
         </Col>
       </Row>
     </Container>
