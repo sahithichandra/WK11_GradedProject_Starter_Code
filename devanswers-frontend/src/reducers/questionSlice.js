@@ -3,11 +3,16 @@ import {
   getAllQuestions,
   getQuestionById,
   createQuestion,
+  updateQuestion as updateQuestionApi,
   upvoteQuestion,
   downvoteQuestion,
   createAnswerForQuestion,
 } from "../services/questionService.js";
-import { upvoteAnswer, downvoteAnswer } from "../services/answerService.js";
+import {
+  upvoteAnswer,
+  downvoteAnswer,
+  updateAnswer as updateAnswerApi,
+} from "../services/answerService.js";
 
 const initialState = {
   questions: [],
@@ -65,6 +70,45 @@ export const postQuestion = createAsyncThunk(
         error.response?.data?.message ||
           error.message ||
           "Failed to post question",
+      );
+    }
+  },
+);
+
+export const updateQuestion = createAsyncThunk(
+  "question/updateQuestion",
+  async (
+    { questionId, title, description, tags },
+    { getState, rejectWithValue },
+  ) => {
+    try {
+      const { token } = getState().user.userInfo || {};
+      return await updateQuestionApi(
+        questionId,
+        { title, description, tags },
+        token,
+      );
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to update question",
+      );
+    }
+  },
+);
+
+export const updateAnswer = createAsyncThunk(
+  "question/updateAnswer",
+  async ({ answerId, answerText }, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().user.userInfo || {};
+      return await updateAnswerApi(answerId, answerText, token);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to update answer",
       );
     }
   },
@@ -161,6 +205,34 @@ const questionSlice = createSlice({
       })
       .addCase(postQuestion.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(updateQuestion.fulfilled, (state, action) => {
+        // Merge the populated, edited question, preserving the loaded answers.
+        if (state.currentQuestion) {
+          state.currentQuestion = { ...state.currentQuestion, ...action.payload };
+        }
+        const idx = state.questions.findIndex(
+          (q) => q._id === action.payload._id,
+        );
+        if (idx !== -1) {
+          state.questions[idx] = { ...state.questions[idx], ...action.payload };
+        }
+      })
+      .addCase(updateQuestion.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(updateAnswer.fulfilled, (state, action) => {
+        if (state.currentQuestion?.answers) {
+          const idx = state.currentQuestion.answers.findIndex(
+            (a) => a._id === action.payload._id,
+          );
+          if (idx !== -1) {
+            state.currentQuestion.answers[idx] = action.payload;
+          }
+        }
+      })
+      .addCase(updateAnswer.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
       })
       .addCase(voteQuestion.pending, (state) => {

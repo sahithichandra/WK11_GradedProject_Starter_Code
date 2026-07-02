@@ -276,9 +276,38 @@ describe('Questions API', () => {
     expect(response.body.message).toBe('Question updated successfully');
     expect(response.body.data.title).toBe(updateData.title);
     expect(response.body.data.description).toBe(updateData.description);
+    // Edited flag is set and the response is populated (tags as objects).
+    expect(response.body.data.isEdited).toBe(true);
+    expect(Array.isArray(response.body.data.tags)).toBe(true);
+    expect(response.body.data.tags[0]).toHaveProperty('name');
 
     const updatedQuestion = await Question.findById(question._id);
     expect(updatedQuestion.title).toBe(updateData.title);
+    expect(updatedQuestion.isEdited).toBe(true);
+  });
+
+  it('PUT /api/questions/:id -> should return 400 when title or description is empty', async () => {
+    const question = await createQuestion({ author: mockUser._id });
+
+    const response = await request(app)
+      .put(`/api/questions/${question._id}`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ title: '   ', description: 'Desc', tags: 'test' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  it('POST /api/questions/:id/upvote -> voting does not mark the question as edited', async () => {
+    const question = await createQuestion({ author: mockUser._id });
+
+    await request(app)
+      .post(`/api/questions/${question._id}/upvote`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    const voted = await Question.findById(question._id);
+    expect(voted.voteCount).toBe(1);
+    expect(voted.isEdited).toBe(false);
   });
 
   it('PUT /api/questions/:id -> should return 404 for non-existent question ID', async () => {

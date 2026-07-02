@@ -97,4 +97,28 @@ describe('AnswerList Component', () => {
     renderAnswerList([]);
     expect(screen.getByText('0 Answers')).toBeInTheDocument();
   });
+
+  // ── Edit affordance ─────────────────────────────────────────────
+  it('shows an edit affordance only on the current user\'s own answers', () => {
+    // current user is user-1; only the third answer is authored by user-1
+    renderAnswerList([
+      ...mockAnswers,
+      {
+        _id: 'a3',
+        answerText: 'My own answer.',
+        author: { _id: 'user-1', name: 'Me' },
+        voteCount: 0,
+        createdAt: '2026-01-15T14:00:00.000Z',
+      },
+    ]);
+    const editButtons = screen.getAllByRole('button', { name: /edit answer/i });
+    expect(editButtons).toHaveLength(1);
+  });
+
+  it('shows the (edited) indicator on an edited answer', () => {
+    renderAnswerList([
+      { ...mockAnswers[0], isEdited: true },
+    ]);
+    expect(screen.getByText('(edited)')).toBeInTheDocument();
+  });
 });

@@ -10,6 +10,8 @@ import { describe, it, expect } from 'vitest';
 import questionReducer, {
   fetchQuestions,
   postQuestion,
+  updateQuestion,
+  updateAnswer,
 } from '../../../src/reducers/questionSlice.js';
 
 describe('questionSlice', () => {
@@ -98,6 +100,66 @@ describe('questionSlice', () => {
 
       expect(state.loading).toBe(false);
       expect(state.error).toBe(errorMessage);
+    });
+  });
+
+  describe('updateQuestion async thunk', () => {
+    it('replaces currentQuestion (preserving answers) and the questions entry', () => {
+      const existingState = {
+        ...initialState,
+        currentQuestion: {
+          _id: 'q1',
+          title: 'Old',
+          description: 'Old desc',
+          tags: [],
+          isEdited: false,
+          answers: [{ _id: 'a1', answerText: 'keep' }],
+        },
+        questions: [{ _id: 'q1', title: 'Old' }],
+      };
+      const updated = {
+        _id: 'q1',
+        title: 'New title',
+        description: 'New desc',
+        tags: [{ _id: 't1', name: 'js' }],
+        isEdited: true,
+      };
+
+      const state = questionReducer(
+        existingState,
+        updateQuestion.fulfilled(updated, '', {})
+      );
+
+      expect(state.currentQuestion.title).toBe('New title');
+      expect(state.currentQuestion.isEdited).toBe(true);
+      // The loaded answers must be preserved (payload has no answers).
+      expect(state.currentQuestion.answers).toHaveLength(1);
+      expect(state.questions[0].title).toBe('New title');
+    });
+  });
+
+  describe('updateAnswer async thunk', () => {
+    it('replaces the matching answer inside currentQuestion.answers', () => {
+      const existingState = {
+        ...initialState,
+        currentQuestion: {
+          _id: 'q1',
+          answers: [
+            { _id: 'a1', answerText: 'Old', isEdited: false },
+            { _id: 'a2', answerText: 'Keep' },
+          ],
+        },
+      };
+      const updated = { _id: 'a1', answerText: 'New', isEdited: true };
+
+      const state = questionReducer(
+        existingState,
+        updateAnswer.fulfilled(updated, '', {})
+      );
+
+      expect(state.currentQuestion.answers[0].answerText).toBe('New');
+      expect(state.currentQuestion.answers[0].isEdited).toBe(true);
+      expect(state.currentQuestion.answers[1].answerText).toBe('Keep');
     });
   });
 });

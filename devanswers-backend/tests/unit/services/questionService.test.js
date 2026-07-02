@@ -346,9 +346,12 @@ describe("questionService", () => {
       }));
 
       Question.findById = vi.fn().mockResolvedValue(mockExistingQuestion);
-      Question.findByIdAndUpdate = vi
-        .fn()
-        .mockResolvedValue(mockUpdatedQuestion);
+      // Update returns a query whose populate chain resolves the updated doc.
+      Question.findByIdAndUpdate = vi.fn().mockReturnValue({
+        populate: vi.fn().mockReturnValue({
+          populate: vi.fn().mockResolvedValue(mockUpdatedQuestion),
+        }),
+      });
 
       // Act
       const result = await updateQuestionService(
@@ -366,10 +369,27 @@ describe("questionService", () => {
         expect.objectContaining({
           title: "Updated Title",
           description: "Updated Description",
+          isEdited: true,
         }),
         { new: true },
       );
       expect(result).toEqual(mockUpdatedQuestion);
+    });
+
+    // Validation case - empty title/description
+    it("should throw 400 when title or description is empty", async () => {
+      const loggedInUser = { id: "user123", isAdmin: false };
+      Question.findById = vi.fn().mockResolvedValue({
+        _id: "question123",
+        author: { toString: () => "user123" },
+      });
+
+      await expect(
+        updateQuestionService("question123", "  ", "Desc", "tag", loggedInUser),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      await expect(
+        updateQuestionService("question123", "Title", "", "tag", loggedInUser),
+      ).rejects.toMatchObject({ statusCode: 400 });
     });
 
     // Error case - question not found

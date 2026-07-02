@@ -194,7 +194,22 @@ describe('answerService', () => {
       // Assert
       expect(Answer.findById).toHaveBeenCalledWith('answer123');
       expect(mockAnswer.save).toHaveBeenCalled();
+      expect(mockAnswer.isEdited).toBe(true);
       expect(result).toEqual(mockPopulatedAnswer);
+    });
+
+    // Validation case - empty answer text
+    it('should throw 400 when answer text is empty', async () => {
+      const loggedInUser = { id: 'user123', isAdmin: false };
+      Answer.findById = vi.fn().mockResolvedValue({
+        _id: 'answer123',
+        author: { toString: () => 'user123' },
+        save: vi.fn(),
+      });
+
+      await expect(
+        updateAnswerService('answer123', '   ', loggedInUser),
+      ).rejects.toMatchObject({ statusCode: 400 });
     });
 
     // Error case - answer not found

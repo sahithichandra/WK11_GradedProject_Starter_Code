@@ -217,9 +217,35 @@ describe("Answers API", () => {
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe("Answer updated successfully");
     expect(response.body.data.answerText).toBe(updateData.answerText);
+    expect(response.body.data.isEdited).toBe(true);
 
     const updatedAnswer = await Answer.findById(answer._id);
     expect(updatedAnswer.answerText).toBe(updateData.answerText);
+    expect(updatedAnswer.isEdited).toBe(true);
+  });
+
+  it("PUT /api/answers/:answerId -> should return 400 when answer text is empty", async () => {
+    const answer = await createAnswer({ author: mockUser._id });
+
+    const response = await request(app)
+      .put(`/api/answers/${answer._id}`)
+      .set("Authorization", `Bearer ${jwtToken}`)
+      .send({ answerText: "   " });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  it("POST /api/answers/:answerId/upvote -> voting does not mark the answer as edited", async () => {
+    const answer = await createAnswer({ author: mockUser._id });
+
+    await request(app)
+      .post(`/api/answers/${answer._id}/upvote`)
+      .set("Authorization", `Bearer ${jwtToken}`);
+
+    const voted = await Answer.findById(answer._id);
+    expect(voted.voteCount).toBe(1);
+    expect(voted.isEdited).toBe(false);
   });
 
   it("PUT /api/answers/:answerId -> should return 404 for non-existent answer ID", async () => {

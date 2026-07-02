@@ -73,6 +73,24 @@ export const handlers = [
     return HttpResponse.json({ data: newQuestion }, { status: 201 });
   }),
 
+  http.put(`${BASE_URL}/questions/:id`, async ({ request, params }) => {
+    const body = await request.json();
+    const question = mockQuestions.find((q) => q._id === params.id);
+    return HttpResponse.json({
+      success: true,
+      message: "Question updated successfully",
+      data: {
+        ...(question || { _id: params.id }),
+        title: body.title,
+        description: body.description,
+        tags: (body.tags || "")
+          .split(",")
+          .map((name, i) => ({ _id: `tag-edit-${i}`, name: name.trim() })),
+        isEdited: true,
+      },
+    });
+  }),
+
   http.post(`${BASE_URL}/questions/:id/upvote`, ({ params }) => {
     const question = mockQuestions.find((q) => q._id === params.id);
 
@@ -122,6 +140,20 @@ export const handlers = [
       return HttpResponse.json({ data: newAnswer }, { status: 201 });
     },
   ),
+
+  http.put(`${BASE_URL}/answers/:answerId`, async ({ request, params }) => {
+    const body = await request.json();
+    const answer = mockAnswers.find((a) => a._id === params.answerId);
+    return HttpResponse.json({
+      success: true,
+      message: "Answer updated successfully",
+      data: {
+        ...(answer || { _id: params.answerId }),
+        answerText: body.answerText,
+        isEdited: true,
+      },
+    });
+  }),
 
   http.post(`${BASE_URL}/answers/:id/upvote`, ({ params }) => {
     const answer = mockAnswers.find((a) => a._id === params.id);

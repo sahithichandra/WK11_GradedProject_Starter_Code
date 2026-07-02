@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Card, Row, Col, Button } from 'react-bootstrap';
+import { Card, Row, Col, Button, Form } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaUser, FaClock } from 'react-icons/fa';
-import { voteAnswer } from '../../reducers/questionSlice';
+import { FaUser, FaClock, FaEdit } from 'react-icons/fa';
+import { voteAnswer, updateAnswer } from '../../reducers/questionSlice';
 import { formatDate } from '../../utils/timeFormat';
 import VoteButtons from '../Shared/VoteButtons';
 import { summarizeAnswers } from '../../services/aiService';
@@ -15,6 +15,27 @@ const AnswerList = ({ answers, question }) => {
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryVisible, setSummaryVisible] = useState(false);
+
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
+
+  const startEditAnswer = (answer) => {
+    setEditingId(answer._id);
+    setEditText(answer.answerText);
+  };
+
+  const handleSaveAnswer = async (answerId) => {
+    if (!editText.trim()) {
+      alert('Answer cannot be empty.');
+      return;
+    }
+    try {
+      await dispatch(updateAnswer({ answerId, answerText: editText })).unwrap();
+      setEditingId(null);
+    } catch (error) {
+      alert(`Failed to update answer: ${error}`);
+    }
+  };
 
   const handleSummarize = async () => {
     setSummaryLoading(true);
@@ -93,9 +114,37 @@ const AnswerList = ({ answers, question }) => {
 
                   {/* Answer Content */}
                   <Col>
-                    <div className="mb-2 alist-content">
-                      {answer.answerText}
-                    </div>
+                    {editingId === answer._id ? (
+                      <Form.Group className="mb-2">
+                        <Form.Control
+                          as="textarea"
+                          rows={4}
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          aria-label="Edit answer"
+                        />
+                        <div className="d-flex gap-2 mt-2">
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => handleSaveAnswer(answer._id)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-secondary"
+                            onClick={() => setEditingId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </Form.Group>
+                    ) : (
+                      <div className="mb-2 alist-content">
+                        {answer.answerText}
+                      </div>
+                    )}
                     <div className="mt-2 d-flex align-items-center gap-2 alist-meta">
                       <FaUser className="alist-icon-sm" />
                       <span>Answered by </span>
@@ -107,6 +156,21 @@ const AnswerList = ({ answers, question }) => {
                           <span>{formatDate(answer.createdAt)}</span>
                         </>
                       )}
+                      {answer.isEdited && (
+                        <span className="text-muted fst-italic small">(edited)</span>
+                      )}
+                      {answer.author?._id === userInfo?.userId &&
+                        editingId !== answer._id && (
+                          <Button
+                            variant="link"
+                            className="p-0 text-decoration-none ms-1 alist-edit-btn"
+                            onClick={() => startEditAnswer(answer)}
+                            aria-label="Edit answer"
+                            title="Edit answer"
+                          >
+                            <FaEdit className="alist-icon-sm" />
+                          </Button>
+                        )}
                     </div>
                   </Col>
                 </Row>
