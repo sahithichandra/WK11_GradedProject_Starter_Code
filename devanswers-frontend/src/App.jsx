@@ -15,15 +15,15 @@ import SideBarLayout from './layouts/SideBarLayout.jsx';
 
 function App() {
   const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.user);
+  const userId = useSelector((state) => state.user.userInfo?.userId);
 
   // On app load (or after login) with a valid session, hydrate the user's
   // saved-question set so bookmark icons render in the correct state.
   useEffect(() => {
-    if (userInfo) {
+    if (userId) {
       dispatch(fetchBookmarks());
     }
-  }, [userInfo?.userId, dispatch]);
+  }, [userId, dispatch]);
 
   return (
     <Router>

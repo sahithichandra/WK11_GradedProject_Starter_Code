@@ -81,7 +81,7 @@ const Profile = () => {
         setIsEditing(false);
         setLoading(false);
       }, 1000);
-    } catch (err) {
+    } catch {
       setError('Failed to update profile. Please try again.');
       setLoading(false);
     }

@@ -17,7 +17,6 @@ const Header = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleCloseMobileMenu = () => setShowMobileMenu(false);
-  const handleShowMobileMenu = () => setShowMobileMenu(true);
 
   const handleLogin = () => {
     navigate('/login');
