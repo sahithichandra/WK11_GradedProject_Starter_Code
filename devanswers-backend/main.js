@@ -24,3 +24,11 @@ async function stopApp() {
 }
 
 startApp();
+
+// Graceful shutdown: clean up the server + DB connection on termination signals.
+const shutdown = async () => {
+    await stopApp();
+    process.exit(0);
+};
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

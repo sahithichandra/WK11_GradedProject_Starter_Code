@@ -35,7 +35,7 @@ describe('voteService', () => {
       MockModel = { findById: vi.fn().mockResolvedValue(mockDocument) };
 
       // Act
-      const result = await handleVote(MockModel, 'doc123', 'user123', 'upvote');
+      await handleVote(MockModel, 'doc123', 'user123', 'upvote');
 
       // Assert
       expect(MockModel.findById).toHaveBeenCalledWith('doc123');
@@ -79,7 +79,7 @@ describe('voteService', () => {
       MockModel = { findById: vi.fn().mockResolvedValue(mockDocument) };
 
       // Act
-      const result = await handleVote(MockModel, 'doc123', 'user123', 'upvote');
+      await handleVote(MockModel, 'doc123', 'user123', 'upvote');
 
       // Assert
       expect(mockDocument.upvotes).toContain('user123');
@@ -103,7 +103,7 @@ describe('voteService', () => {
       MockModel = { findById: vi.fn().mockResolvedValue(mockDocument) };
 
       // Act
-      const result = await handleVote(MockModel, 'doc123', 'user123', 'downvote');
+      await handleVote(MockModel, 'doc123', 'user123', 'downvote');
 
       // Assert
       expect(mockDocument.downvotes).toContain('user123');
@@ -146,7 +146,7 @@ describe('voteService', () => {
       MockModel = { findById: vi.fn().mockResolvedValue(mockDocument) };
 
       // Act
-      const result = await handleVote(MockModel, 'doc123', 'user123', 'downvote');
+      await handleVote(MockModel, 'doc123', 'user123', 'downvote');
 
       // Assert
       expect(mockDocument.downvotes).toContain('user123');

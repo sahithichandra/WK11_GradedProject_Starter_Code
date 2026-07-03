@@ -199,7 +199,7 @@ describe('Questions API', () => {
   });
 
   it('POST /api/questions -> should create or reuse tags when creating a question', async () => {
-    const existingTag = await createTag('javascript');
+    await createTag('javascript');
 
     const questionData = {
       title: 'JavaScript Question',

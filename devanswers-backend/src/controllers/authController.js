@@ -3,7 +3,7 @@ import {
   login as loginUser
 } from '../services/userService.js';
 
-export const register = async (req, res, next) => {
+export const register = async (req, res) => {
   const { name, email, password, isAdmin } = req.body;
   const user = await registerUser(name, email, password, isAdmin);
 
@@ -14,7 +14,7 @@ export const register = async (req, res, next) => {
   });
 };
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   const { token, userId, name } = await loginUser(email, password); 
 
