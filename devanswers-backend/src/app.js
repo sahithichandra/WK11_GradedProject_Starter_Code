@@ -22,6 +22,9 @@ const limiter = rateLimit({
     limit: 100, // limit each IP to 100 requests per windowMs
     standardHeaders: 'draft-8', // RFC 6585 combined RateLimit header (v8.x API)
     legacyHeaders: false,
+    // Skip rate limiting in development so local testing (a SPA makes several
+    // requests per page) isn't throttled. The 100/15min cap still applies in production.
+    skip: () => process.env.NODE_ENV === 'development',
 });
 app.use(limiter);
 
