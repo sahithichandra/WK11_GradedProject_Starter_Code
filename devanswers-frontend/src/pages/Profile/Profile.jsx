@@ -13,6 +13,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.user);
+  const userId = userInfo?.userId;
   const savedQuestions = useSelector((state) => state.bookmark?.items) || [];
   const isAuthenticated = !!userInfo;
   
@@ -39,24 +40,27 @@ const Profile = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
-    } else if (userInfo?.userId) {
-      fetchUserStats();
-      dispatch(fetchBookmarks());
+      return;
     }
-    // Depend on the stable userId primitive, not the userInfo object, so the
-    // effect does not re-fire on every unrelated state change.
-  }, [isAuthenticated, navigate, userInfo?.userId, dispatch]);
+    if (!userId) return;
 
-  const fetchUserStats = async () => {
-    try {
-      const response = await axios.get(USER_API.STATS(userInfo.userId));
-      if (response.data.success) {
-        setStats(response.data.data);
+    // Fetch stats inline so the effect has no external function dependency;
+    // depend on the stable userId primitive (not the userInfo object) to avoid
+    // re-firing on unrelated state changes.
+    const loadUserStats = async () => {
+      try {
+        const response = await axios.get(USER_API.STATS(userId));
+        if (response.data.success) {
+          setStats(response.data.data);
+        }
+      } catch (err) {
+        console.error('Error fetching user stats:', err);
       }
-    } catch (err) {
-      console.error('Error fetching user stats:', err);
-    }
-  };
+    };
+
+    loadUserStats();
+    dispatch(fetchBookmarks());
+  }, [isAuthenticated, navigate, userId, dispatch]);
 
   const handleChange = (e) => {
     setFormData({
