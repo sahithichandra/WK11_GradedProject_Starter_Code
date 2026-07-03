@@ -74,7 +74,7 @@ describe("questionService", () => {
       await getAllQuestionsService();
 
       // Assert
-      expect(sortSpy).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(sortSpy).toHaveBeenCalledWith({ createdAt: -1, _id: -1 });
     });
 
     // Error case - no questions found

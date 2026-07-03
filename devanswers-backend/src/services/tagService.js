@@ -25,7 +25,9 @@ export const getQuestionsByTagService = async (tagId) => {
     const questions = await Question.find({ tags: tagId })
         .populate({ path: 'author', select: 'name' })
         .populate('tags')
-        .sort({ createdAt: -1 });
+        // Secondary _id sort breaks createdAt ties deterministically
+        // (rapid inserts can share a millisecond), so ordering is stable.
+        .sort({ createdAt: -1, _id: -1 });
 
     const questionsWithCount = await Promise.all(
         questions.map(async (q) => {

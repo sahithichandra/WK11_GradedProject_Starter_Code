@@ -9,7 +9,9 @@ export const getAllQuestionsService = async () => {
   const questions = await Question.find({})
     .populate({ path: "author", select: "name" })
     .populate("tags")
-    .sort({ createdAt: -1 });
+    // Secondary _id sort breaks createdAt ties deterministically
+    // (rapid inserts can share a millisecond), so ordering is stable.
+    .sort({ createdAt: -1, _id: -1 });
 
   if (!questions || questions.length === 0) {
     throw createAppError("No questions found", 404);
